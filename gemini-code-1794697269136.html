@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MyGeoGC // Geochemical & Rock Analyzer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #0a0e17;
+            --bg-card: #121824;
+            --bg-input: #070a10;
+            --primary: #f59e0b;       /* Tech Amber */
+            --cyan: #06b6d4;          /* Tech Cyan */
+            --emerald: #10b981;
+            --danger: #ef4444;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --border: #1e293b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding-bottom: 80px;
+            min-height: 100vh;
+        }
+
+        .font-tech { font-family: 'Chakra Petch', sans-serif; letter-spacing: 0.03em; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Header */
+        header {
+            background: rgba(10, 14, 23, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 0.85rem 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 1.15rem;
+            color: #fff;
+        }
+        .brand span { color: var(--primary); }
+        .brand-sub { font-size: 0.6rem; color: var(--cyan); text-transform: uppercase; letter-spacing: 0.1em; }
+
+        /* Role Badge Button */
+        .badge-role {
+            font-size: 0.7rem;
+            padding: 0.35rem 0.65rem;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .role-user {
+            background: #1e293b;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+        }
+        .role-admin {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+        .container { max-width: 768px; margin: 0 auto; padding: 1rem; }
+
+        /* Tabs */
+        .tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.4rem;
+            background: var(--bg-card);
+            padding: 0.3rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+        .tab-btn {
+            padding: 0.65rem;
+            border: none;
+            background: transparent;
+            font-weight: 700;
+            color: var(--text-dim);
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            transition: 0.2s;
+        }
+        .tab-btn.active {
+            background: #1e293b;
+            color: var(--primary);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.15rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+        }
+        .card-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Buttons */
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 100%;
+            text-transform: uppercase;
+            border: none;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .btn-cam { background: rgba(6, 182, 212, 0.15); color: var(--cyan); border: 1px solid rgba(6, 182, 212, 0.3); }
+        .btn-gal { background: #1e293b; color: var(--text-main); border: 1px solid var(--border); }
+        .btn-primary { background: var(--primary); color: #0a0e17; font-weight: 800; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
+        .btn-danger { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); padding: 0.4rem 0.6rem; font-size: 0.7rem; width: auto; }
+
+        /* Viewfinder Box */
+        .viewfinder {
+            width: 100%;
+            height: 230px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin: 0.75rem 0;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .viewfinder img { width: 100%; height: 100%; object-fit: cover; }
+        .vf-placeholder { text-align: center; color: var(--text-dim); font-size: 0.8rem; padding: 1rem; }
+
+        /* Geochemistry Matrix */
+        .geo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+        .geo-item {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            padding: 0.55rem;
+            text-align: center;
+        }
+        .geo-symbol { font-size: 0.75rem; color: var(--text-dim); font-weight: 600; }
+        .geo-val { font-size: 1.05rem; font-weight: 700; color: #fff; margin: 0.1rem 0; }
+        .geo-unit { font-size: 0.65rem; color: var(--cyan); }
+
+        /* Spectrum Bar */
+        .bar-row { margin-bottom: 0.5rem; }
+        .bar-label { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.2rem; }
+        .bar-track { height: 6px; background: var(--bg-input); border-radius: 3px; overflow: hidden; border: 1px solid var(--border); }
+        .bar-fill { height: 100%; background: linear-gradient(90deg, var(--cyan), var(--primary)); border-radius: 3px; }
+
+        /* Forms */
+        .form-group { margin-bottom: 0.75rem; }
+        .form-group label { display: block; font-size: 0.7rem; font-weight: 600; margin-bottom: 0.3rem; color: var(--text-dim); text-transform: uppercase; }
+        .form-control {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: #fff;
+        }
+        .form-control:focus { outline: none; border-color: var(--primary); }
+        .form-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.45rem; }
+
+        /* Database Item */
+        .db-item {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 0.6rem;
+            align-items: center;
+        }
+        .db-thumb { width: 54px; height: 54px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+        .db-info { flex: 1; min-width: 0; }
+        .db-name { font-weight: 700; font-size: 0.9rem; color: #fff; }
+        .db-meta { font-size: 0.72rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* Modal */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(7, 10, 16, 0.85);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 999;
+        }
+        .modal-backdrop.show { display: flex; }
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 380px;
+            padding: 1.25rem;
+        }
+
+        .alert-box {
+            background: rgba(6, 182, 212, 0.08);
+            border: 1px solid rgba(6, 182, 212, 0.25);
+            padding: 0.75rem;
+            border-radius: 7px;
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+
+        .hidden { display: none !important; }
+
+        @media print {
+            header, .tabs, .no-print { display: none !important; }
+            body { background: #fff !important; color: #000 !important; }
+            .card { background: #fff !important; border: 1px solid #ccc !important; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="brand font-tech">
+        <span>⬡</span> MyGeoGC
+    </div>
+    <!-- Otomatis masuk Mode Pengguna saat pertama dibuka -->
+    <button id="roleBtn" class="badge-role role-user font-mono" onclick="openAdminModal()">
+        <span class="status-dot"></span> <span id="roleLabel">USER MODE</span>
+    </button>
+</header>
+
+<div class="container">
+    <div class="tabs no-print">
+        <button class="tab-btn active font-tech" onclick="switchTab('analyze', this)">🔍 ANALISA BATUAN</button>
+        <button class="tab-btn font-tech" onclick="switchTab('database', this)">🗄️ DATABASE</button>
+    </div>
+
+    <!-- TAB 1: ANALISA -->
+    <div id="tab-analyze">
+        <div class="card no-print">
+            <div class="card-title font-tech">1. Akuisisi Citra Sampel</div>
+            <div class="btn-grid">
+                <button class="btn btn-cam font-tech" onclick="document.getElementById('camInput').click()">📷 Kamera HP</button>
+                <button class="btn btn-gal font-tech" onclick="document.getElementById('galInput').click()">🖼️ Galeri</button>
+            </div>
+            <input type="file" id="camInput" accept="image/*" capture="environment" class="hidden" onchange="processImage(event)">
+            <input type="file" id="galInput" accept="image/*" class="hidden" onchange="processImage(event)">
+
+            <div class="viewfinder" id="previewBox">
+                <div class="vf-placeholder" id="vfPlaceholder">
+                    Belum ada foto sampel.<br>Gunakan kamera langsung atau pilih dari galeri.
+                </div>
+                <img id="previewImg" class="hidden" alt="Sampel">
+            </div>
+
+            <button class="btn btn-primary font-tech" id="analyzeBtn" onclick="runAnalysis()" disabled>⚡ Eksekusi Analisa Geokimia</button>
+        </div>
+
+        <div id="resultSection" class="hidden">
+            <div class="card">
+                <div class="card-title font-tech">
+                    <span>Hasil Identifikasi</span>
+                    <span id="matchScore" style="color: var(--emerald); font-size: 0.75rem;">Match: 0%</span>
+                </div>
+                <h2 id="resName" class="font-tech" style="color: var(--primary); font-size: 1.25rem; margin-bottom: 0.2rem;">-</h2>
+                <p id="resDesc" style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 1rem;">-</p>
+
+                <div class="card-title font-tech" style="border-top: 1px solid var(--border); padding-top: 0.75rem;">
+                    <span>Kadar Unsur Geokimia</span>
+                </div>
+                <div class="geo-grid" id="geoGrid"></div>
+
+                <div style="margin-top: 1rem;">
+                    <div style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.4rem;" class="font-tech">DISTRIBUSI OKSIDA UTAMA</div>
+                    <div id="geoChart"></div>
+                </div>
+
+                <button class="btn btn-outline font-tech no-print" style="margin-top: 1rem;" onclick="window.print()">🖨️ Cetak Laporan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: DATABASE -->
+    <div id="tab-database" class="hidden">
+        <!-- Form Tambah Data (Hanya muncul jika Admin aktif) -->
+        <div id="adminAddSection" class="card hidden">
+            <div class="card-title font-tech" style="color: var(--primary);">➕ Tambah Batuan Baru (Admin)</div>
+            <form onsubmit="addRock(event)">
+                <div class="form-group"><label>Nama Litologi / Jenis Batuan</label><input type="text" id="dbName" class="form-control" required></div>
+                <div class="form-group"><label>Deskripsi Singkat</label><input type="text" id="dbDesc" class="form-control" required></div>
+                <div class="form-group"><label>Foto Sampel</label><input type="file" id="dbPhoto" accept="image/*" class="form-control" required></div>
+                
+                <div style="font-size:0.75rem; color: var(--primary); margin: 0.5rem 0;" class="font-tech">KADAR 9 UNSUR GEOKIMIA:</div>
+                <div class="form-grid-3">
+                    <div class="form-group"><label>Ni (%)</label><input type="number" step="0.01" id="inNi" class="form-control font-mono" required></div>
+                    <div class="form-group"><label>Fe (%)</label><input type="number" step="0.01" id="inFe" class="form-control font-mono" required></div>
+                    <div class="form-group"><label>MgO (%)</label><input type="number" step="0.01" id="inMgO" class="form-control font-mono" required></div>
+                    <div class="form-group"><label>SiO2 (%)</label><input type="number" step="0.01" id="inSiO2" class="form-control font-mono" required></div>
+                    <div class="form-group"><label>Co (%)</label><input type="number" step="0.001" id="inCo" class="form-control font-mono" required></div>
+                    <div class="form-group"><label>CaO (%)</label><input type="number" step="0.01" id="inCaO" class="form-control font-mono" required></div>
+                    <div class="form-group"><label>Cr2O3 (%)</label><input type="number" step="0.01" id="inCr2O3" class="form-control font-mono" required></div>
+                    <div class="form-group"><label>Al2O3 (%)</label><input type="number" step="0.01" id="inAl2O3" class="form-control font-mono" required></div>
+                    <div class="form-group"><label>Cr (ppm)</label><input type="number" step="1" id="inCr" class="form-control font-mono" required></div>
+                </div>
+                <button type="submit" class="btn btn-primary font-tech" style="margin-top:0.5rem;">Simpan ke Database</button>
+            </form>
+        </div>
+
+        <div id="userNotice" class="alert-box">
+            ℹ️ <strong>Mode Pengguna Aktif:</strong> Anda dapat menganalisa sampel dan melihat database. Untuk menambah atau menghapus data batuan, klik tombol status di pojok kanan atas dan masukkan kode Admin.
+        </div>
+
+        <div class="card">
+            <div class="card-title font-tech">Database Referensi (<span id="dbCount">0</span>)</div>
+            <div id="dbList"></div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL LOGIN ADMIN -->
+<div class="modal-backdrop" id="adminModal">
+    <div class="modal">
+        <div id="loginView">
+            <div class="font-tech" style="font-size: 1rem; color: var(--primary); margin-bottom: 0.4rem;">🔐 OTENTIKASI ADMIN</div>
+            <p style="font-size: 0.78rem; color: var(--text-dim); margin-bottom: 1rem;">
+                Masukkan kode rahasia admin untuk mengaktifkan Mode Admin.
+            </p>
+            <div class="form-group">
+                <label>Kode Sandi Admin</label>
+                <input type="password" id="adminPassInput" class="form-control font-mono" placeholder="Masukkan sandi...">
+            </div>
+            <div class="btn-grid">
+                <button class="btn btn-outline font-tech" onclick="closeAdminModal()">Batal</button>
+                <button class="btn btn-primary font-tech" onclick="verifyAdmin()">Masuk</button>
+            </div>
+        </div>
+
+        <div id="logoutView" class="hidden">
+            <div class="font-tech" style="font-size: 1rem; color: var(--emerald); margin-bottom: 0.4rem;">🛡️ ADMIN AKTIF</div>
+            <p style="font-size: 0.78rem; color: var(--text-dim); margin-bottom: 1rem;">
+                Anda sedang berada dalam Mode Admin. Anda dapat mengelola database batuan.
+            </p>
+            <div class="btn-grid">
+                <button class="btn btn-outline font-tech" onclick="closeAdminModal()">Tutup</button>
+                <button class="btn btn-danger font-tech" onclick="logoutAdmin()">Keluar Admin</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<canvas id="procCanvas" width="64" height="64" class="hidden"></canvas>
+
+<script>
+    const DB_KEY = 'mygeogc_db_v3';
+    const ADMIN_CODE = 'Arigeo18ITNY'; // Kode rahasia admin Anda
+    let isAdmin = false;
+    let sampleSig = null;
+
+    function createDummyTexture(r, g, b, noise) {
+        const c = document.createElement('canvas');
+        c.width = 64; c.height = 64;
+        const ctx = c.getContext('2d');
+        const img = ctx.createImageData(64, 64);
+        for (let i = 0; i < img.data.length; i += 4) {
+            const n = (Math.random() - 0.5) * noise;
+            img.data[i] = Math.min(255, Math.max(0, r + n));
+            img.data[i+1] = Math.min(255, Math.max(0, g + n));
+            img.data[i+2] = Math.min(255, Math.max(0, b + n));
+            img.data[i+3] = 255;
+        }
+        ctx.putImageData(img, 0, 0);
+        return c.toDataURL('image/jpeg', 0.8);
+    }
+
+    function getInitialDB() {
+        return [
+            {
+                id: 'r1', name: 'Limonit (Laterit Nikel)', desc: 'Zona oksida besi dominan, warna cokelat kemerahan.',
+                image: createDummyTexture(155, 75, 35, 40),
+                sig: { r: 155, g: 75, b: 35, tex: 22 },
+                geo: { Ni: 1.45, Fe: 46.80, MgO: 2.15, SiO2: 6.40, Co: 0.145, CaO: 0.18, Cr2O3: 2.85, Al2O3: 7.20, Cr: 19500 }
+            },
+            {
+                id: 'r2', name: 'Saprolit (Zona Silikat)', desc: 'Zona pelapukan menengah, cokelat kehijauan.',
+                image: createDummyTexture(135, 125, 65, 50),
+                sig: { r: 135, g: 125, b: 65, tex: 28 },
+                geo: { Ni: 2.25, Fe: 18.40, MgO: 21.60, SiO2: 36.50, Co: 0.055, CaO: 0.65, Cr2O3: 1.15, Al2O3: 2.80, Cr: 7850 }
+            },
+            {
+                id: 'r3', name: 'Peridotit / Dunit', desc: 'Batuan ultramafik segar, hijau gelap.',
+                image: createDummyTexture(58, 72, 54, 35),
+                sig: { r: 58, g: 72, b: 54, tex: 18 },
+                geo: { Ni: 0.28, Fe: 8.10, MgO: 41.20, SiO2: 40.80, Co: 0.012, CaO: 1.10, Cr2O3: 0.42, Al2O3: 1.15, Cr: 2850 }
+            }
+        ];
+    }
+
+    function loadDB() {
+        const stored = localStorage.getItem(DB_KEY);
+        if (!stored) {
+            const def = getInitialDB();
+            localStorage.setItem(DB_KEY, JSON.stringify(def));
+            return def;
+        }
+        return JSON.parse(stored);
+    }
+
+    function saveDB(data) {
+        localStorage.setItem(DB_KEY, JSON.stringify(data));
+        renderDB();
+    }
+
+    function extractSig(imgEl) {
+        const canvas = document.getElementById('procCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(imgEl, 0, 0, 64, 64);
+        const data = ctx.getImageData(0, 0, 64, 64).data;
+        let r=0, g=0, b=0, diff=0;
+        const cnt = 64 * 64;
+        for (let i = 0; i < data.length; i += 4) {
+            r += data[i]; g += data[i+1]; b += data[i+2];
+            if (i > 4) diff += Math.abs(data[i] - data[i-4]);
+        }
+        return { r: r/cnt, g: g/cnt, b: b/cnt, tex: diff/cnt };
+    }
+
+    window.onload = function() {
+        // Otomatis masuk Mode Pengguna (tanpa password saat awal buka)
+        renderDB();
+    };
+
+    function openAdminModal() {
+        const modal = document.getElementById('adminModal');
+        document.getElementById('loginView').classList.toggle('hidden', isAdmin);
+        document.getElementById('logoutView').classList.toggle('hidden', !isAdmin);
+        document.getElementById('adminPassInput').value = '';
+        modal.classList.add('show');
+    }
+
+    function closeAdminModal() {
+        document.getElementById('adminModal').classList.remove('show');
+    }
+
+    function verifyAdmin() {
+        const val = document.getElementById('adminPassInput').value.trim();
+        if (val === ADMIN_CODE) {
+            isAdmin = true;
+            updateUIRole();
+            closeAdminModal();
+            alert('Berhasil masuk sebagai Admin!');
+        } else {
+            alert('Kode sandi admin salah!');
+        }
+    }
+
+    function logoutAdmin() {
+        isAdmin = false;
+        updateUIRole();
+        closeAdminModal();
+        alert('Keluar ke Mode Pengguna.');
+    }
+
+    function updateUIRole() {
+        const btn = document.getElementById('roleBtn');
+        const label = document.getElementById('roleLabel');
+        const addSec = document.getElementById('adminAddSection');
+        const notice = document.getElementById('userNotice');
+
+        if (isAdmin) {
+            btn.className = 'badge-role role-admin font-mono';
+            label.textContent = 'ADMIN MODE';
+            addSec.classList.remove('hidden');
+            notice.classList.add('hidden');
+        } else {
+            btn.className = 'badge-role role-user font-mono';
+            label.textContent = 'USER MODE';
+            addSec.classList.add('hidden');
+            notice.classList.remove('hidden');
+        }
+        renderDB();
+    }
+
+    function switchTab(tab, el) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+        document.getElementById('tab-analyze').classList.toggle('hidden',
